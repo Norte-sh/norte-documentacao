@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="$lang$">
+  <head>
+    <meta charset="utf-8" />
+    <title>$title$</title>
+    <meta name="author" content="NORTE" />
+    <meta name="description" content="$subtitle$" />
+    <style>
+      %%ESTILO%%
+    </style>
+  </head>
+  <body>
+    <section class="capa">
+      <div class="capa__logo"><img src="%%LOGO%%" alt="NORTE" /><img src="%%LOGO_ITAIPU%%" alt="ITAIPU" /></div>
+      <div>
+        <div class="capa__barra"></div>
+        <h1 class="capa__titulo">$title$</h1>
+        $if(subtitle)$
+        <p class="capa__subtitulo">$subtitle$</p>
+        $endif$
+      </div>
+      <div class="capa__meta">
+        <div><strong>$if(tipo)$$tipo$$else$Relatório técnico$endif$</strong>NORTE · ITAIPU</div>
+        $if(version)$
+        <div><strong>Versão</strong>$version$</div>
+        $endif$ $if(date)$
+        <div><strong>Data</strong>$date$</div>
+        $endif$
+      </div>
+    </section>
+    $if(toc)$
+    <nav id="TOC" role="doc-toc">$table-of-contents$</nav>
+    $endif$
+    <main class="corpo">$body$</main>
+    <script>
+      %%MERMAID%%
+    </script>
+    <script>
+      // Tema "base" do Mermaid: tokens do Carbon v11 e o verde da logo como acento (GUIA.md §5.3).
+      // As cores semânticas de cada nó vêm dos `classDef` escritos no próprio
+      // diagrama; o que está aqui é o que o Mermaid desenha sozinho.
+      mermaid.initialize({
+        startOnLoad: false,
+        securityLevel: "loose",
+        theme: "base",
+        fontFamily: "'IBM Plex Sans', system-ui, sans-serif",
+        themeVariables: {
+          fontFamily: "'IBM Plex Sans', system-ui, sans-serif",
+          fontSize: "13px",
+          primaryColor: "#ebf4f3",
+          primaryTextColor: "#161616",
+          primaryBorderColor: "#2f6f64",
+          secondaryColor: "#edf5ff",
+          secondaryBorderColor: "#0f62fe",
+          tertiaryColor: "#ffffff",
+          tertiaryBorderColor: "#e0e0e0",
+          lineColor: "#525252",
+          textColor: "#161616",
+          clusterBkg: "#ffffff",
+          clusterBorder: "#c6c6c6",
+          edgeLabelBackground: "#ffffff",
+          actorBkg: "#ebf4f3",
+          actorBorder: "#2f6f64",
+          actorTextColor: "#161616",
+          actorLineColor: "#a8a8a8",
+          signalColor: "#161616",
+          signalTextColor: "#161616",
+          labelBoxBkgColor: "#fcf4d6",
+          labelBoxBorderColor: "#8e6a00",
+          labelTextColor: "#161616",
+          loopTextColor: "#161616",
+          noteBkgColor: "#fcf4d6",
+          noteBorderColor: "#8e6a00",
+          noteTextColor: "#161616",
+          activationBkgColor: "#edf5ff",
+          activationBorderColor: "#0f62fe",
+          sequenceNumberColor: "#ffffff",
+          cScale0: "#ebf4f3",
+          cScale1: "#cde4e1",
+          cScale2: "#a3cdc7",
+          cScale3: "#57a49a",
+          cScale4: "#2f6f64",
+          cScaleLabel0: "#161616",
+          cScaleLabel1: "#161616",
+          cScaleLabel2: "#161616",
+          cScaleLabel3: "#161616",
+          cScaleLabel4: "#ffffff",
+        },
+        flowchart: {
+          htmlLabels: true,
+          useMaxWidth: true,
+          curve: "basis",
+          padding: 8,
+        },
+        sequence: {
+          useMaxWidth: true,
+          mirrorActors: false,
+          messageAlign: "center",
+          wrap: true,
+          width: 170,
+        },
+        timeline: { useMaxWidth: true, disableMulticolor: false },
+      });
+
+      // Renderiza cada bloco a partir do texto original (o mesmo que o GitHub
+      // lê) e sinaliza ao Playwright quando terminou — ou qual diagrama falhou.
+      (async () => {
+        try {
+          await document.fonts.ready;
+          const blocos = [...document.querySelectorAll("pre.mermaid")];
+          for (const [i, pre] of blocos.entries()) {
+            const fonte = pre.textContent.trim();
+            const { svg } = await mermaid.render("diagrama-" + i, fonte);
+            const fig = document.createElement("figure");
+            fig.className = "mermaid";
+            fig.innerHTML = svg;
+            pre.replaceWith(fig);
+          }
+          window.__diagramas = blocos.length;
+          window.__pronto = true;
+        } catch (e) {
+          window.__erro = String(e && e.message ? e.message : e);
+        }
+      })();
+    </script>
+  </body>
+</html>
